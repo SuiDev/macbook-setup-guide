@@ -1466,7 +1466,57 @@ export GOPATH="$HOME/go"
 
 `zsh-syntax-highlighting` は他のプラグインの発火タイミングに影響を受けるため、必ず `.zshrc` の最後に読み込むこと。
 
-### 15.5 設定の反映
+### 15.5 Starship プロンプト
+
+Git ブランチ・言語バージョン・コマンド実行時間などをプロンプトに表示するため、クロスシェル対応のプロンプトツール Starship を導入する。
+
+```bash
+brew install starship
+```
+
+`~/.zshrc` の末尾（`zsh-syntax-highlighting` の読み込み後でも可）に init 行を追加する。
+
+```bash
+eval "$(starship init zsh)"
+```
+
+`starship init` は内部で `PROMPT` を上書きするため、15.4 で設定した `PROMPT='%n %1~ %# '` は実質無効化される（手動プロンプトに戻したい場合はこの行をコメントアウトする）。
+
+#### 15.5.1 設定ファイル
+
+`~/.config/starship.toml` を作成する。ローカル開発が中心ならユーザー名・ホスト名を毎回出す必要はないため非表示にし、横方向のスペースを節約するためにプロンプトを 2 行構成にする。
+
+```toml
+format = """
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$nodejs\
+$python\
+$rust\
+$golang\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+```
+
+ポイント:
+
+- `\` によるエスケープ改行で各モジュールを横方向に連結
+- 末尾の `$line_break` で改行し、`$character` で 2 行目の入力プロンプト記号を出す
+- 1 行目に情報、2 行目に入力欄を分離する構成。入力欄が常に画面左端から始まるため打鍵しやすい
+
+SSH 先など環境を強調したい場面でだけホスト名を出したい場合は、`[hostname]` の `disabled` を外して `ssh_only = true` を指定する。
+
+### 15.6 設定の反映
 
 ```bash
 source ~/.zprofile
@@ -1623,6 +1673,7 @@ chmod 600 ~/.ssh/*
 - [ ] 過去コマンドから灰色でインライン予測が表示される（`zsh-autosuggestions`）
 - [ ] コマンド入力中に有効/無効が色で判別できる（`zsh-syntax-highlighting`）
 - [ ] プロンプトにホスト名（AirDrop表示名）が出ない
+- [ ] Starship のプロンプトが 2 行構成で表示される（`~/.config/starship.toml` 反映済み）
 
 ### 16. SSH
 
